@@ -27,34 +27,34 @@ public class Bootsrap implements CommandLineRunner {
             // load data
             System.out.println("#### LOADING CATEGORY DATA");
             categoryRepository.save(Category.builder()
-                    .description("Fruits").build());
+                    .description("Fruits").build()).block();
             categoryRepository.save(Category.builder()
-                    .description("Nuts").build());
+                    .description("Nuts").build()).block();
             categoryRepository.save(Category.builder()
-                    .description("Breads").build());
+                    .description("Breads").build()).block();
             categoryRepository.save(Category.builder()
-                    .description("Meats").build());
+                    .description("Meats").build()).block();
             categoryRepository.save(Category.builder()
-                    .description("Eggs").build());
+                    .description("Eggs").build()).block();
             System.out.println("Loaded categories: " + categoryRepository.count().block());
 
             // load data
             System.out.println("#### LOADING VENDOR DATA");
             vendorRepository.save(Vendor.builder()
                     .firstName("Joe")
-                    .lastName("Buck").build());
+                    .lastName("Buck").build()).block();
             vendorRepository.save(Vendor.builder()
                     .firstName("Michael")
-                    .lastName("Weston").build());
+                    .lastName("Weston").build()).block();
             vendorRepository.save(Vendor.builder()
                     .firstName("Jessie")
-                    .lastName("Waters").build());
+                    .lastName("Waters").build()).block();
             vendorRepository.save(Vendor.builder()
                     .firstName("Bill")
-                    .lastName("Nershi").build());
+                    .lastName("Nershi").build()).block();
             vendorRepository.save(Vendor.builder()
                     .firstName("Jimmy")
-                    .lastName("Buffet").build());
+                    .lastName("Buffet").build()).block();
             System.out.println("Loaded vendors: " + vendorRepository.count().block());
         }
     }
