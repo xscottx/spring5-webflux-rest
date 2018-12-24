@@ -4,7 +4,6 @@ import guru.springframework.spring5webfluxrest.domain.Category;
 import guru.springframework.spring5webfluxrest.repository.CategoryRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 import org.reactivestreams.Publisher;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -12,6 +11,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 public class CategoryControllerTest {
 
@@ -30,7 +33,7 @@ public class CategoryControllerTest {
 
     @Test
     public void list() {
-        BDDMockito.given(categoryRepository.findAll())
+        given(categoryRepository.findAll())
                 .willReturn(Flux.just(Category.builder().description("Cat1").build(),
                         Category.builder().description("Cat2").build()));
 
@@ -42,7 +45,7 @@ public class CategoryControllerTest {
 
     @Test
     public void getById() {
-        BDDMockito.given(categoryRepository.findById("someid"))
+        given(categoryRepository.findById("someid"))
                 .willReturn(Mono.just(Category.builder().description("Cat").build()));
 
         webTestClient.get().uri("/api/v1/categories/someid")
@@ -52,7 +55,7 @@ public class CategoryControllerTest {
 
     @Test
     public void create() {
-        BDDMockito.given(categoryRepository.saveAll(any(Publisher.class)))
+        given(categoryRepository.saveAll(any(Publisher.class)))
                 .willReturn(Flux.just(Category.builder().build()));
 
         Mono<Category> categoryMono = Mono.just(Category.builder().description("some category").build());
@@ -67,7 +70,7 @@ public class CategoryControllerTest {
 
     @Test
     public void update() {
-        BDDMockito.given(categoryRepository.save(any(Category.class)))
+        given(categoryRepository.save(any(Category.class)))
                 .willReturn(Mono.just(Category.builder().build()));
 
         Mono<Category> categoryMono = Mono.just(Category.builder().description("som cat").build());
@@ -78,5 +81,45 @@ public class CategoryControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    public void patchWithChanges() {
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().build()));
+        given(categoryRepository.findById(anyString()))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        Mono<Category> categoryMono = Mono.just(Category.builder().description("som cat").build());
+
+        webTestClient.patch()
+                .uri("/api/v1/categories/someid")
+                .body(categoryMono, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        // will ensure it has been called once
+        verify(categoryRepository)
+                .save(any());
+    }
+
+    @Test
+    public void patchNoChanges() {
+        given(categoryRepository.save(any(Category.class)))
+                .willReturn(Mono.just(Category.builder().build()));
+        given(categoryRepository.findById(anyString()))
+                .willReturn(Mono.just(Category.builder().build()));
+
+        Mono<Category> categoryMono = Mono.just(Category.builder().build());
+
+        webTestClient.patch()
+                .uri("/api/v1/categories/someid")
+                .body(categoryMono, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        verify(categoryRepository, never()).save(any());
     }
 }
