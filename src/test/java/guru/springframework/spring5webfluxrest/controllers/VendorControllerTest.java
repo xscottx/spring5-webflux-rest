@@ -53,9 +53,10 @@ public class VendorControllerTest {
     }
 
     @Test
-    public void createCategory() {
+    public void create() {
         BDDMockito.given(vendorRepository.saveAll(any(Publisher.class)))
                 .willReturn(Flux.just(Vendor.builder().build()));
+
         Mono<Vendor> vendorMono = Mono.just(Vendor.builder().firstName("Scott").lastName("Vo").build());
 
         webTestClient.post()
@@ -64,5 +65,20 @@ public class VendorControllerTest {
                 .exchange()
                 .expectStatus()
                 .isCreated();
+    }
+
+    @Test
+    public void update() {
+        BDDMockito.given(vendorRepository.save(any(Vendor.class)))
+                .willReturn(Mono.just(Vendor.builder().build()));
+
+        Mono<Vendor> vendorMono = Mono.just(Vendor.builder().firstName("O").lastName("O").build());
+
+        webTestClient.put()
+                .uri("/api/v1/vendors/someid")
+                .body(vendorMono, Vendor.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
     }
 }
